@@ -1,5 +1,5 @@
 # OpenAR
-Augmented Reality android application
+Augmented Reality android application.
 Features:
 - Add 3D object on flat surface in free space
 - Capture image
