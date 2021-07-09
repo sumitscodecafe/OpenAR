@@ -33,7 +33,6 @@
         android:ems="10"
         android:hint="Phone no. (Eg. +91XXXX)"
         android:inputType="phone"
-        android:textColor="@color/black"
         android:textColorHint="#575757"
         android:layout_below="@+id/signIn"
         android:layout_marginTop="30dp"
@@ -68,13 +67,35 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:layout_centerHorizontal="true"/>
+    <TextView
+        android:id="@+id/textErrorMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/progressBar2"
+        android:textColor="#575757"
+        android:text="textErrorMsg" />
+    <TextView
+        android:id="@+id/resendCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/progressBar2"
+        android:textColor="#14599E"
+        android:text="resendCode" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="210dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textErrorMsg"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/progressBar2"
+        android:layout_margin="10dp"
         app:srcCompat="@drawable/welcome_bg" />
 
 </RelativeLayout>

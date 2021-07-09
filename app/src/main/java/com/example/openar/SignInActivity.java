@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class SignInActivity extends AppCompatActivity {
 
     private EditText editText;
+    private TextView errorMsg, resendCode;
     private ProgressBar progressBar;
     private Button btn_getOTP, btn_signIn;
     private String phoneNumber, otp;
@@ -48,6 +50,11 @@ public class SignInActivity extends AppCompatActivity {
         btn_signIn = findViewById(R.id.btn_signIn);
         progressBar = findViewById(R.id.progressBar2);
         progressBar.setVisibility(View.INVISIBLE);
+        errorMsg = findViewById(R.id.textErrorMsg);
+        errorMsg.setVisibility(View.INVISIBLE);
+        resendCode = findViewById(R.id.resendCode);
+        resendCode.setVisibility(View.INVISIBLE);
+        resendCode.setEnabled(false);
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
@@ -58,17 +65,7 @@ public class SignInActivity extends AppCompatActivity {
             public void onClick(View v) {
                 phoneNumber = editText.getText().toString();
                 if(!phoneNumber.equals("")){
-                    progressBar.setVisibility(View.VISIBLE);
-                    SharedPreference.saveSharedSetting(getApplicationContext(), "ph_no", phoneNumber);
-                    PhoneAuthOptions options =
-                            PhoneAuthOptions.newBuilder(mAuth)
-                                    .setPhoneNumber(phoneNumber)       // Phone number to verify
-                                    .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-                                    .setActivity(SignInActivity.this)                 // Activity (for callback binding)
-                                    .setCallbacks(mCallbacks)          // OnVerificationStateChangedCallbacks
-                                    .build();
-                    PhoneAuthProvider.verifyPhoneNumber(options);
-                    Toast.makeText(getApplicationContext(), "OTP requested", Toast.LENGTH_SHORT).show();
+                    requestOtp(phoneNumber);
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "Enter phone number", Toast.LENGTH_SHORT).show();
@@ -94,14 +91,16 @@ public class SignInActivity extends AppCompatActivity {
             public void onVerificationFailed(FirebaseException e) {
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
-                Toast.makeText(getApplicationContext(), "Verification failed! Try again", Toast.LENGTH_SHORT).show();
+                errorMsg.setText(R.string.error_msg);
+                errorMsg.setVisibility(View.VISIBLE);
+                Toast.makeText(getApplicationContext(), "Verification failed!", Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.INVISIBLE);
                 if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     // Invalid request
                     Toast.makeText(getApplicationContext(), "Invalid request, try again", Toast.LENGTH_SHORT).show();
                 } else if (e instanceof FirebaseTooManyRequestsException) {
                     // The SMS quota for the project has been exceeded
-                    Toast.makeText(getApplicationContext(), "Too many requests, please wait", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Too many requests, please wait or try another number", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -115,6 +114,7 @@ public class SignInActivity extends AppCompatActivity {
                 editText.setHint("Enter OTP");
                 Toast.makeText(getApplicationContext(), "OTP has been sent", Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.INVISIBLE);
+                errorMsg.setVisibility(View.INVISIBLE);
                 //If OTP not detected automatically, manually enter OTP and sign-in:
                 //hide get_otp button
                 btn_getOTP.setVisibility(View.INVISIBLE);
@@ -135,14 +135,51 @@ public class SignInActivity extends AppCompatActivity {
                         }
                     }
                 });
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//
-//                    }
-//                }, 10000);
+                resendCode.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        requestOtp(phoneNumber);
+                        resendCode.setVisibility(View.INVISIBLE);
+                        resendCode.setEnabled(false);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        String codeSentText = "OTP re-sent to: "+phoneNumber;
+                        errorMsg.setText(codeSentText);
+                        errorMsg.setVisibility(View.VISIBLE);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                errorMsg.setVisibility(View.INVISIBLE);
+                                resendCode.setText(R.string.resendMsg);
+                                resendCode.setEnabled(true);
+                                resendCode.setVisibility(View.VISIBLE);
+                            }
+                        }, 60000);
+                    }
+                });
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        resendCode.setText(R.string.resendMsg);
+                        resendCode.setEnabled(true);
+                        resendCode.setVisibility(View.VISIBLE);
+                    }
+                }, 10000);
             }
         };
+    }
+
+    private void requestOtp(String phoneNumber) {
+        progressBar.setVisibility(View.VISIBLE);
+        SharedPreference.saveSharedSetting(getApplicationContext(), "ph_no", phoneNumber);
+        PhoneAuthOptions options =
+                PhoneAuthOptions.newBuilder(mAuth)
+                        .setPhoneNumber(phoneNumber)       // Phone number to verify
+                        .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+                        .setActivity(SignInActivity.this)                 // Activity (for callback binding)
+                        .setCallbacks(mCallbacks)          // OnVerificationStateChangedCallbacks
+                        .build();
+        PhoneAuthProvider.verifyPhoneNumber(options);
+        Toast.makeText(getApplicationContext(), "OTP requested", Toast.LENGTH_SHORT).show();
     }
 
     public void signIn(PhoneAuthCredential credential){
@@ -151,12 +188,13 @@ public class SignInActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressBar.setVisibility(View.INVISIBLE);
                 if(task.isSuccessful()) {
+                    errorMsg.setVisibility(View.INVISIBLE);
                     Toast.makeText(getApplicationContext(), "Verification complete!", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(SignInActivity.this, MainActivity.class));
                     finish();
                 }
                 else{
-                    Toast.makeText(getApplicationContext(), "Verification failed! Try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Code does not match! Try again", Toast.LENGTH_SHORT).show();
                 }
             }
         });

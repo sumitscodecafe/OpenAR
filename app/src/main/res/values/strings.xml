@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">OpenAR</string>
+    <string name="resendMsg">Resend code</string>
+    <string name="error_msg">Please ensure 10-digit phone number is preceded by country code. Eg. +91703453XXXX</string>
 </resources>

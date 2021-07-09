@@ -241,8 +241,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                     //String currentUserID = mAuth.getCurrentUser().toString();
                                     Model model = new Model(uri.toString());
                                     root.child(phone_no).push().setValue(model);
-                                    //progressBar.setVisibility(View.INVISIBLE);
-                                    //Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
-                            //progressBar.setVisibility(View.VISIBLE);
+                            progressBar.setVisibility(View.VISIBLE);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
