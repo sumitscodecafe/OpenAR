@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -142,11 +143,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Initialize Firebase Auth
-                mAuth = FirebaseAuth.getInstance();
-                mAuth.signOut();
-                startActivity(new Intent(MainActivity.this, SignInActivity.class));
-                finish();
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Warning!")
+                        .setMessage("Are you sure you want to sign-out?")
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Initialize Firebase Auth
+                                mAuth = FirebaseAuth.getInstance();
+                                mAuth.signOut();
+                                startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create();
+                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.GREEN);
+                        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.RED);
+                    }
+                });
+                alertDialog.show();
             }
         });
     }
@@ -171,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void takePhoto() {
         progressBar.setVisibility(View.VISIBLE);
-        Toast.makeText(getApplicationContext(), "Capturing...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Captured", Toast.LENGTH_SHORT).show();
 
         ArSceneView view = arFragment.getArSceneView();
         // Create a bitmap the size of the scene view.
@@ -200,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void uploadFile(Uri imgUri) {
+        progressBar.setVisibility(View.INVISIBLE);
         root = FirebaseDatabase.getInstance().getReference().child("image");
         StorageReference sref = FirebaseStorage.getInstance().getReference().child("media");
         if (imgUri != null) {
@@ -212,12 +236,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
+                                    String phone_no = SharedPreference.readSharedSetting(getApplicationContext(), "ph_no", "false");
                                     //Store file reference in Firebase Realtime Database - metadata
                                     //String currentUserID = mAuth.getCurrentUser().toString();
                                     Model model = new Model(uri.toString());
-                                    root.push().setValue(model);
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
+                                    root.child(phone_no).push().setValue(model);
+                                    //progressBar.setVisibility(View.INVISIBLE);
+                                    //Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -225,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
-                            progressBar.setVisibility(View.VISIBLE);
+                            //progressBar.setVisibility(View.VISIBLE);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -259,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } catch (Exception e) { }
     }
     private void alertBox(String message) {
-        new AlertDialog.Builder(MainActivity.this)
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                 .setTitle("Welcome!")
                 .setMessage(message)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -267,7 +292,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         dialog.dismiss();
                     }
                 })
-                .show();
+                .create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.GREEN);
+            }
+        });
+        alertDialog.show();
     }
 
     @Override

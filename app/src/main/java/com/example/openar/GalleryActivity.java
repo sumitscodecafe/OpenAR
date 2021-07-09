@@ -3,10 +3,14 @@ package com.example.openar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.icu.lang.UProperty;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
@@ -23,6 +27,7 @@ import java.util.ArrayList;
 public class GalleryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
     private ArrayList<Model> imglist;
     private MyAdapter myAdapter;
     private DatabaseReference root;
@@ -33,25 +38,31 @@ public class GalleryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gallery);
 
         recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //recyclerView.setHasFixedSize(true);
+        progressBar = findViewById(R.id.progressBar3);
+        progressBar.setVisibility(View.VISIBLE);
         imglist = new ArrayList<>();
-        myAdapter = new MyAdapter(this, imglist);
-        recyclerView.setAdapter(myAdapter);
 
-        root = FirebaseDatabase.getInstance().getReference().child("image");
-        root.addValueEventListener(new ValueEventListener() {
 
+        String phone_no = SharedPreference.readSharedSetting(getApplicationContext(), "ph_no", "false");
+        root = FirebaseDatabase.getInstance().getReference().child("image").child(phone_no);
+        root.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    Model model = dataSnapshot.getValue(Model.class);
-                    imglist.add(model);
+                    if(snapshot.hasChildren()) {
+                        Model model = dataSnapshot.getValue(Model.class);
+                        imglist.add(model);
+                        myAdapter = new MyAdapter(GalleryActivity.this, imglist);
+                        GridLayoutManager gridLayoutManager = new GridLayoutManager(GalleryActivity.this,4,GridLayoutManager.VERTICAL,false);
+                        recyclerView.setLayoutManager(gridLayoutManager);
+                        recyclerView.setAdapter(myAdapter);
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
                 }
                 if (!snapshot.hasChildren())
                     Toast.makeText(getApplicationContext(), "No image found", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) { }
         });

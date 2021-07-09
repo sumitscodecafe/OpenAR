@@ -1,6 +1,7 @@
 package com.example.openar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyAdapter.MyViewHolder holder, int position) {
         //Load images in recycler view
         Glide.with(context).load(imglist.get(position).getImgUrl()).into(holder.imageView);
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, FullImageView.class);
+                intent.putExtra("imgUrl", imglist.get(position).getImgUrl());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

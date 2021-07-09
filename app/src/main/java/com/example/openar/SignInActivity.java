@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class SignInActivity extends AppCompatActivity {
 
     private EditText editText;
+    private ProgressBar progressBar;
     private Button btn_getOTP, btn_signIn;
     private String phoneNumber, otp;
     private FirebaseAuth mAuth;
@@ -43,6 +46,8 @@ public class SignInActivity extends AppCompatActivity {
         editText = findViewById(R.id.editText);
         btn_getOTP = findViewById(R.id.btn_getOTP);
         btn_signIn = findViewById(R.id.btn_signIn);
+        progressBar = findViewById(R.id.progressBar2);
+        progressBar.setVisibility(View.INVISIBLE);
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
@@ -53,6 +58,8 @@ public class SignInActivity extends AppCompatActivity {
             public void onClick(View v) {
                 phoneNumber = editText.getText().toString();
                 if(!phoneNumber.equals("")){
+                    progressBar.setVisibility(View.VISIBLE);
+                    SharedPreference.saveSharedSetting(getApplicationContext(), "ph_no", phoneNumber);
                     PhoneAuthOptions options =
                             PhoneAuthOptions.newBuilder(mAuth)
                                     .setPhoneNumber(phoneNumber)       // Phone number to verify
@@ -88,7 +95,7 @@ public class SignInActivity extends AppCompatActivity {
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
                 Toast.makeText(getApplicationContext(), "Verification failed! Try again", Toast.LENGTH_SHORT).show();
-
+                progressBar.setVisibility(View.INVISIBLE);
                 if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     // Invalid request
                     Toast.makeText(getApplicationContext(), "Invalid request, try again", Toast.LENGTH_SHORT).show();
@@ -107,7 +114,7 @@ public class SignInActivity extends AppCompatActivity {
                 editText.setText("");
                 editText.setHint("Enter OTP");
                 Toast.makeText(getApplicationContext(), "OTP has been sent", Toast.LENGTH_SHORT).show();
-
+                progressBar.setVisibility(View.INVISIBLE);
                 //If OTP not detected automatically, manually enter OTP and sign-in:
                 //hide get_otp button
                 btn_getOTP.setVisibility(View.INVISIBLE);
@@ -142,6 +149,7 @@ public class SignInActivity extends AppCompatActivity {
         mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                progressBar.setVisibility(View.INVISIBLE);
                 if(task.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "Verification complete!", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(SignInActivity.this, MainActivity.class));
