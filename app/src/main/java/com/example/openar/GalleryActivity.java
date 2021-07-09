@@ -63,7 +63,7 @@ public class GalleryActivity extends AppCompatActivity {
                         emptyTxt.setVisibility(View.INVISIBLE);
                         Model model = dataSnapshot.getValue(Model.class);
                         imglist.add(model);
-                        myAdapter = new MyAdapter(GalleryActivity.this, imglist);
+                        myAdapter = new MyAdapter(GalleryActivity.this, imglist, phone_no);
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(GalleryActivity.this,4,GridLayoutManager.VERTICAL,false);
                         recyclerView.setLayoutManager(gridLayoutManager);
                         recyclerView.setAdapter(myAdapter);

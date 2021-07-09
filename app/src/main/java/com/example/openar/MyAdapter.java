@@ -1,5 +1,6 @@
 package com.example.openar;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -19,10 +20,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     private ArrayList<Model> imglist;
     private Context context;
+    private String phoneNo;
 
-    public MyAdapter(Context context, ArrayList<Model> list) {
+    public MyAdapter(Context context, ArrayList<Model> list, String phNo) {
         this.context = context;
         this.imglist = list;
+        this.phoneNo = phNo;
     }
 
     @NonNull
@@ -41,7 +44,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullImageView.class);
                 intent.putExtra("imgUrl", imglist.get(position).getImgUrl());
+                intent.putExtra("phNo", phoneNo);
                 context.startActivity(intent);
+                //((Activity)context).finish();
             }
         });
     }
