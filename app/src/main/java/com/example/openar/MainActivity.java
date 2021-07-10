@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private DatabaseReference root;
     String selectedOption;
     // array of Strings to store 3D object names
-    String[] objects = {"Hornbill", "Android"};
+    String[] objects = {"Hornbill", "Android", "Handgun", "IphoneX", "Spaceship"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +85,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arFragment);
         Toast.makeText(getApplicationContext(), "Find a plane surface", Toast.LENGTH_LONG).show();
         arFragment.setOnTapArPlaneListener(((hitResult, plane, motionEvent) -> {
-            if(selectedOption.equals("Hornbill"))
-                selectedOption = "TocoToucan.sfb";
-            if(selectedOption.equals("Android"))
-                selectedOption = "andy.sfb";
 
+            switch(selectedOption){
+                case "Hornbill":
+                    selectedOption = "TocoToucan.sfb";
+                    break;
+                case "Android":
+                    selectedOption = "andy.sfb";
+                    break;
+                case "Handgun":
+                    selectedOption = "Handgun_obj.sfb";
+                    break;
+                case "IphoneX":
+                    selectedOption = "IphoneX.sfb";
+                    break;
+                case "Spaceship":
+                    selectedOption = "spaceship.sfb";
+                    break;
+                default:
+                    selectedOption = "";
+                    break;
+            }
             Anchor anchor = hitResult.createAnchor();
             ModelRenderable.builder()
                     .setSource(this, Uri.parse(selectedOption))

@@ -57,7 +57,6 @@ dependencies {
     //dependency for sceneform sdk
     //api project(":sceneformux")
 }
-
 sceneform.asset('sampledata/TocoToucan.obj',
         'default',
         'sampledata/TocoToucan.sfa',
@@ -67,4 +66,19 @@ sceneform.asset('sampledata/andy.obj',
         'default',
         'sampledata/andy.sfa',
         'src/main/assets/andy'
+)
+sceneform.asset('sampledata/Handgun_obj.obj',
+        'default',
+        'sampledata/Handgun_obj.sfa',
+        'src/main/assets/Handgun_obj'
+)
+sceneform.asset('sampledata/IphoneX.obj',
+        'default',
+        'sampledata/IphoneX.sfa',
+        'src/main/assets/IphoneX'
+)
+sceneform.asset('sampledata/spaceship.obj',
+        'default',
+        'sampledata/spaceship.sfa',
+        'src/main/assets/spaceship'
 )
